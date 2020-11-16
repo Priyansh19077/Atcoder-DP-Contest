@@ -1,4 +1,3 @@
-
 /* Priyansh Agarwal*/
 
 #include<bits/stdc++.h>
@@ -57,26 +56,54 @@ ll mod_sub(ll a, ll b, ll m) {a = a % m; b = b % m; return (((a - b) % m) + m) %
 ll mod_div(ll a, ll b, ll m) {a = a % m; b = b % m; return (mod_mul(a, mminvprime(b, m), m) + m) % m;}  //only for prime m
 ll phin(ll n) {ll number = n; if (n % 2 == 0) {number /= 2; while (n % 2 == 0)n /= 2;} for (ll i = 3; i <= sqrt(n); i += 2) {if (n % i == 0) {while (n % i == 0)n /= i; number = (number / i * (i - 1));}} if (n > 1)number = (number / n * (n - 1)) ; return number;} //O(sqrt(N))
 /*--------------------------------------------------------------------------------------------------------------------------*/
-
+struct state {
+	int value;
+	int direction;
+};
 void solve() {
-	ll n, w;
-	cin >> n >> w;
-	pair<ll, ll> arr[n];
-	for (int i = 0; i < n; i++) {
-		cin >> arr[i].ff >> arr[i].ss;
-	}
-	ll dp[n + 1][w + 1];
-	//remember it is better here to have n*w rather than w*n due to segmentatoin
-	for (int i = 0; i <= w; i++)
-		dp[0][i] = 0;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 0; j <= w; j++) {
-			dp[i][j] = dp[i - 1][j];
-			if (j >= arr[i - 1].ff)
-				dp[i][j] = max(dp[i][j], arr[i - 1].ss + dp[i - 1][j - arr[i - 1].ff]);
+	string s, t;
+	cin >> s >> t;
+	int n = s.length();
+	int m = t.length();
+	state dp[n + 1][m + 1];
+	for (int i = 0; i <= n; i++)
+		dp[i][0] = {0, 1};
+	for (int i = 0; i <= m; i++)
+		dp[0][i] = {0, 2};
+	for (int i = 1; i <= n; i++)
+	{
+		for (int j = 1; j <= m; j++)
+		{
+			dp[i][j] = {0, 0};
+			if (dp[i - 1][j - 1].value > dp[i][j].value)
+				dp[i][j] = {dp[i - 1][j - 1].value, 0};
+			if (dp[i - 1][j].value > dp[i][j].value)
+				dp[i][j] = {dp[i - 1][j].value, 1};
+			if (dp[i][j - 1].value > dp[i][j].value)
+				dp[i][j] = {dp[i][j - 1].value, 2};
+			if (s[i - 1] == t[j - 1])
+				if (2 + dp[i - 1][j - 1].value > dp[i][j].value)
+					dp[i][j] = {dp[i - 1][j - 1].value + 2, 3};
 		}
 	}
-	cout << dp[n][w] << nline;
+	string ans = "";
+	int i = n;
+	int j = m;
+	while (i > 0 && j > 0) {
+		if (dp[i][j].direction == 3)
+		{
+			ans = s[i - 1] + ans;
+			i--;
+			j--;
+		}
+		else if (dp[i][j].direction == 0)
+			i--, j--;
+		else if (dp[i][j].direction == 1)
+			i--;
+		else
+			j--;
+	}
+	cout << ans << nline;
 }
 int main() {
 	fastio();
